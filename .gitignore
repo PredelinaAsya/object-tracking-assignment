@@ -1,0 +1,4 @@
+*_venv
+.vscode
+__pycache__
+.idea
