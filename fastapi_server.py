@@ -3,10 +3,15 @@ from track_3 import track_data, country_balls_amount
 import asyncio
 import glob
 
+from trackers import SoftTracker
+
 app = FastAPI(title='Tracker assignment')
 imgs = glob.glob('imgs/*')
 country_balls = [{'cb_id': x, 'img': imgs[x % len(imgs)]} for x in range(country_balls_amount)]
 print('Started')
+
+
+soft_tracker = SoftTracker()
 
 
 def tracker_soft(el):
@@ -24,6 +29,8 @@ def tracker_soft(el):
     вашего трекера, использовать его в алгоритме трекера запрещено
     - запрещается присваивать один и тот же track_id разным объектам на одном фрейме
     """
+    el = soft_tracker.update(el)
+
     return el
 
 
