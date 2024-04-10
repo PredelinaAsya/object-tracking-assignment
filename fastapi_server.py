@@ -1,10 +1,12 @@
-from fastapi import FastAPI, WebSocket
-from tracks.track_2 import track_data, country_balls_amount, folder_with_frames
 import asyncio
+from fastapi import FastAPI, WebSocket
 import glob
-
 import os
+
+from metrics import print_quality_metrics
 from trackers import SoftTracker, StrongTracker
+from tracks.track_2 import track_data, country_balls_amount, folder_with_frames
+
 
 app = FastAPI(title='Tracker assignment')
 imgs = glob.glob('imgs/*')
@@ -67,6 +69,16 @@ def tracker_strong(el):
     return el
 
 
+def aggregate_data(el, id_entrance):
+    for x in el['data']:
+        if x['cb_id'] in id_entrance:
+            id_entrance[x['cb_id']].append(x['track_id'])
+        else:
+            id_entrance[x['cb_id']] = [x['track_id']]
+
+    return id_entrance
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     print('Accepting client connection...')
@@ -74,6 +86,7 @@ async def websocket_endpoint(websocket: WebSocket):
     # отправка служебной информации для инициализации объектов
     # класса CountryBall на фронте
     await websocket.send_text(str(country_balls))
+    id_entrance = {}
     for el in track_data:
         await asyncio.sleep(0.5)
         # TODO: part 1
@@ -82,4 +95,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # el = tracker_strong(el)
         # отправка информации по фрейму
         await websocket.send_json(el)
+        id_entrance = aggregate_data(el, id_entrance)
+
+    print_quality_metrics(id_entrance)
     print('Bye..')
