@@ -6,8 +6,6 @@ def compute_quality_metrics(id_entrance):
     counters, trk_lens, pred_matched = [], [], []
     gt_trk_ids = []
 
-    print(f'id_entrance: {id_entrance}')
-
     for gt_trk, pred_trk_ids in id_entrance.items():
         cnt = Counter(pred_trk_ids)
         counters.append(cnt)
@@ -28,9 +26,6 @@ def compute_quality_metrics(id_entrance):
     for pred_trk_ids in id_entrance.values():
         all_preds.extend(pred_trk_ids)
     overall_cnt = Counter(all_preds)
-
-    print(f'overall_cnt: {overall_cnt}')
-    print(f'pred_matched: {pred_matched}')
 
     precision = np.array([
         cnt[pred_match] / overall_cnt[pred_match] for cnt, pred_match in zip(counters, pred_matched)
