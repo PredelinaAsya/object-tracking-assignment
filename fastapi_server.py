@@ -1,9 +1,10 @@
 from fastapi import FastAPI, WebSocket
-from track_3 import track_data, country_balls_amount
+from tracks.track_2 import track_data, country_balls_amount, folder_with_frames
 import asyncio
 import glob
 
-from trackers import SoftTracker
+import os
+from trackers import SoftTracker, StrongTracker
 
 app = FastAPI(title='Tracker assignment')
 imgs = glob.glob('imgs/*')
@@ -12,6 +13,7 @@ print('Started')
 
 
 soft_tracker = SoftTracker()
+strong_tracker = StrongTracker()
 
 
 def tracker_soft(el):
@@ -55,6 +57,13 @@ def tracker_strong(el):
     и по координатам вырезать необходимые регионы.
     TODO: Ужасный костыль, на следующий поток поправить
     """
+    frame_path = os.path.join(folder_with_frames, f'frame_{el["frame_id"] - 1}.png')
+    
+    if not os.path.exists(frame_path):
+        raise ValueError(f'Image path does not exist! input_path="{frame_path}"')
+
+    el = strong_tracker.update(el, frame_path)
+
     return el
 
 
